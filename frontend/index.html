@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AgriAI — Smart Agriculture Assistant</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Lexend:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+  <style>
+    :root{
+      --bg-a:#04140a;
+      --bg-b:#072218;
+      --accent-1:#00e676;
+      --accent-2:#00bcd4;
+      --muted:rgba(255,255,255,0.78);
+      --soft:#dffaf0;
+      --card-radius:14px;
+      --glass:rgba(255,255,255,0.03);
+      --shadow:0 26px 70px rgba(0,0,0,0.6);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial; -webkit-font-smoothing:antialiased}
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(800px 400px at 10% 10%, rgba(0,188,212,0.04), transparent 6%),
+        radial-gradient(700px 300px at 90% 85%, rgba(255,213,79,0.03), transparent 7%),
+        linear-gradient(180deg,var(--bg-a),var(--bg-b));
+      color:var(--soft);
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      padding:18px;
+    }
+
+    /* App shell */
+    .app {
+      width:100%;
+      max-width:1400px;
+      height:calc(100vh - 36px);
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:20px;
+      padding:20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,0.02);
+      overflow:hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      padding:18px;
+      border-radius:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:0;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    .brand { display:flex; gap:12px; align-items:center; }
+    .logo { width:58px; height:58px; border-radius:12px; background:linear-gradient(135deg,var(--accent-2),var(--accent-1)); display:flex; align-items:center; justify-content:center; color:#042617; font-weight:800; font-family:Lexend,Inter; box-shadow:0 12px 38px rgba(0,188,212,0.08) }
+    .brand h1 { margin:0; font-size:1.05rem; color:var(--soft) }
+    .brand p { margin:0; font-size:0.86rem; color:var(--muted) }
+
+    .search { display:flex; gap:8px; align-items:center; padding:10px; border-radius:10px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02) }
+    .search input { border:0; background:transparent; outline:none; color:var(--muted); width:100% }
+
+    .menu { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+    .menu .item { display:flex; align-items:center; gap:12px; padding:12px; border-radius:10px; color:var(--muted); cursor:pointer; transition:all .15s ease; border:1px solid transparent; }
+    .menu .item:hover{ transform:translateY(-3px); color:#fff; background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 8px 22px rgba(0,0,0,0.24) }
+    .menu .item.active{ background: linear-gradient(90deg, rgba(0,230,118,0.08), rgba(0,188,212,0.04)); color:#fff; border-color: rgba(0,230,118,0.06) }
+
+    .meta { font-size:0.82rem; color:var(--muted); text-align:center; margin-top:auto }
+
+    /* Panel */
+    .panel { display:flex; flex-direction:column; border-radius:12px; overflow:hidden; min-height:0; border:1px solid rgba(255,255,255,0.02); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007)); }
+    .header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.02) }
+    .header .title h2{ margin:0; font-size:1.05rem; color:var(--soft); font-family:Lexend,Inter }
+    .header .title p{ margin:0; color:var(--muted); font-size:0.86rem }
+
+    .body { display:flex; flex-direction:column; flex:1; min-height:0; padding:18px; gap:12px }
+
+    /* conversation */
+    .convo { flex:1; min-height:0; overflow:auto; padding-right:8px; display:flex; flex-direction:column; gap:12px }
+    .msg { display:flex; gap:12px; max-width:82%; align-items:flex-end; }
+    .msg.bot { align-self:flex-start; }
+    .msg.user { align-self:flex-end; flex-direction:row-reverse; }
+
+    .avatar { width:46px; height:46px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#042617; background:linear-gradient(180deg,#eafff0,#e6ffe8); box-shadow:0 10px 28px rgba(0,0,0,0.12); flex-shrink:0; }
+    .bubble { padding:12px 16px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95)); color:#052f24; box-shadow:0 12px 34px rgba(6,28,18,0.06); border:1px solid rgba(0,0,0,0.04); word-break:break-word; }
+    .bubble.user { background: linear-gradient(90deg,var(--accent-1),var(--accent-2)); color:#042617; border:none; box-shadow:0 22px 52px rgba(0,140,100,0.12); font-weight:600; }
+
+    .meta-time { font-size:0.72rem; color:var(--muted); margin-top:6px }
+
+    /* composer */
+    .composer { display:flex; gap:12px; align-items:center; padding:12px; border-radius:12px; border-top:1px solid rgba(255,255,255,0.02); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); }
+    .input { display:flex; align-items:center; gap:10px; flex:1; padding:10px 14px; border-radius:999px; background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92)); border:1px solid rgba(0,0,0,0.04) }
+    .input input[type="text"]{ flex:1; border:0; background:transparent; outline:none; font-size:0.95rem; color:#052f24; }
+    .btn-circle { width:50px; height:50px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; border:none; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,0.12) }
+    .btn-send { background: linear-gradient(90deg,var(--accent-1),var(--accent-2)); color:#042617; font-weight:700; font-size:1.05rem }
+
+    .typing { display:inline-flex; gap:6px; align-items:center; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.92); color:#042617 }
+
+    /* quick actions */
+    .quick { position:fixed; right:26px; bottom:26px; display:flex; flex-direction:column; gap:10px; z-index:60; }
+    .quick .btn { width:56px; height:56px; border-radius:12px; background:linear-gradient(90deg,var(--accent-2),var(--accent-1)); color:#042617; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 18px 46px rgba(0,0,0,0.22); cursor:pointer; }
+
+    /* responsive */
+    @media (max-width:1100px){
+      .app{ grid-template-columns:1fr; grid-auto-rows:auto 1fr; padding:12px; height:100vh; }
+      .sidebar{ order:2; max-height:36vh; overflow:auto; }
+      .panel{ order:1; }
+      .quick{ right:12px; bottom:12px; }
+    }
+
+    /* micro animations */
+    @keyframes dot { 0%{ transform:scale(.2) } 40%{ transform:scale(1) } 100%{ transform:scale(.2) } }
+    .fadeIn { animation: .22s ease both tiny; }
+    @keyframes tiny { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:none } }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="AgriAI Smart Assistant">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="brand">
+        <div class="logo">AI</div>
+        <div>
+          <h1>AgriAI</h1>
+          <p>Smart assistant for crops, pests, weather & markets</p>
+        </div>
+      </div>
+
+      <div class="search" role="search">
+        <i class="bi bi-search" style="opacity:.8"></i>
+        <input id="quickSearch" placeholder="Search tips, crops, schemes..." aria-label="Quick search">
+      </div>
+
+      <nav class="menu" aria-label="Main menu">
+        <div class="item active" data-mode="chat"><i class="bi bi-chat-dots-fill"></i> Chat</div>
+        <div class="item" data-mode="market"><i class="bi bi-graph-up"></i> Market Prices</div>
+        <div class="item" data-mode="weather"><i class="bi bi-cloud-sun"></i> Weather</div>
+        <div class="item" data-mode="pest"><i class="bi bi-bug-fill"></i> Pest Detection</div>
+        <div class="item" data-mode="recommend"><i class="bi bi-leaf"></i> Crop Recommendation</div>
+      </nav>
+
+      <div class="meta">Smart Agriculture • Clean & premium design</div>
+    </aside>
+
+    <main class="panel" aria-label="Main panel">
+      <div class="header">
+        <div class="title">
+          <h2 id="panelTitle">Assistant</h2>
+          <p id="panelSubtitle">Type your question e.g., 'Show me market prices'</p>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button id="btnClear" class="btn btn-sm btn-light" title="Clear conversation"><i class="bi bi-trash"></i></button>
+          <button id="btnHelp" class="btn btn-sm btn-outline-light" title="Help"><i class="bi bi-question-circle"></i></button>
+        </div>
+      </div>
+
+      <div class="body">
+        <div class="convo" id="convo" role="log" aria-live="polite"></div>
+
+        <div id="typing" style="display:none">
+          <div class="typing">
+            <span style="width:8px;height:8px;border-radius:50%;background:#333;display:inline-block;animation:dot 1.1s infinite"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:#333;display:inline-block;animation:dot 1.1s infinite .12s"></span>
+            <span style="width:8px;height:8px;border-radius:50%;background:#333;display:inline-block;animation:dot 1.1s infinite .24s"></span>
+          </div>
+        </div>
+
+        <div class="composer" aria-label="Composer">
+          <div class="input" role="group">
+            <input id="messageInput" type="text" placeholder="Type your question e.g., 'Show me market prices'">
+          </div>
+          <button id="sendBtn" class="btn-circle btn-send" title="Send"><i class="bi bi-send-fill"></i></button>
+        </div>
+      </div>
+    </main>
+
+    <div class="quick" aria-hidden="true">
+      <div class="btn" id="quickMarket" title="Market prices"><i class="bi bi-currency-exchange"></i></div>
+      <div class="btn" id="quickWeather" title="Weather"><i class="bi bi-cloud-sun"></i></div>
+    </div>
+  </div>
+
+  <script>
+    // Backend base URL (change if needed)
+    const API = 'http://localhost:8000';
+    const USER_ID = 1;
+
+    // Static UI Text
+    const WELCOME_MSG = "Hello! I am your AI Agriculture Assistant. How can I help you today?";
+    const ERR_MSG = "Something went wrong. Please try again.";
+    const TIP_MARKET = "Try: 'Show me market prices for rice'";
+    const TIP_WEATHER = "Try: 'What is the weather in my area?'";
+
+    // UI elements
+    const panelTitle = document.getElementById('panelTitle');
+    const panelSubtitle = document.getElementById('panelSubtitle');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const convo = document.getElementById('convo');
+    const typing = document.getElementById('typing');
+    const quickMarket = document.getElementById('quickMarket');
+    const quickWeather = document.getElementById('quickWeather');
+    const btnClear = document.getElementById('btnClear');
+    const quickSearch = document.getElementById('quickSearch');
+    const menuItems = document.querySelectorAll('.menu .item');
+
+    // Init
+    window.addEventListener('load', async () => {
+      greet();
+      attachHandlers();
+    });
+
+    function greet(){
+      addBot(WELCOME_MSG);
+    }
+
+    // attach event handlers
+    function attachHandlers(){
+      sendBtn.addEventListener('click', onSend);
+      messageInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') onSend(); });
+      
+      quickMarket.addEventListener('click', () => { messageInput.value = 'Show me market prices'; onSend(); });
+      quickWeather.addEventListener('click', () => { messageInput.value = 'What is the weather?'; onSend(); });
+      
+      btnClear.addEventListener('click', () => { 
+        if(confirm('Clear conversation?')) { convo.innerHTML=''; greet(); } 
+      });
+      
+      quickSearch.addEventListener('keypress', (e) => { 
+        if(e.key === 'Enter') addBot(TIP_MARKET); 
+      });
+
+      menuItems.forEach(item => item.addEventListener('click', () => {
+        menuItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const mode = item.dataset.mode;
+        if(mode === 'market') addBot(TIP_MARKET);
+        if(mode === 'weather') addBot(TIP_WEATHER);
+      }));
+
+      // keyboard: focus input on '/'
+      document.addEventListener('keydown', (e) => {
+        if(e.key === '/' && document.activeElement !== messageInput) {
+          e.preventDefault(); messageInput.focus();
+        }
+      });
+    }
+
+    // send message
+    async function onSend(){
+      const text = messageInput.value.trim();
+      if(!text) return;
+      
+      addUser(text);
+      messageInput.value = '';
+      showTyping(true);
+      
+      try {
+        const res = await fetch(API + '/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // Sending 'en' as default language to backend
+          body: JSON.stringify({ user_id: USER_ID, message: text, language: 'en' })
+        });
+        
+        const data = await res.json();
+        showTyping(false);
+        const reply = data?.response || ERR_MSG;
+        addBot(reply);
+      } catch (err) {
+        showTyping(false);
+        addBot(ERR_MSG);
+      }
+    }
+
+    // render helpers
+    function addUser(text){
+      const wrap = document.createElement('div'); wrap.className = 'msg user fadeIn';
+      const av = document.createElement('div'); av.className = 'avatar'; av.innerText = 'U';
+      const b = document.createElement('div'); b.className = 'bubble user'; b.innerText = text;
+      wrap.appendChild(av); wrap.appendChild(b); appendMeta(wrap);
+      convo.appendChild(wrap); convo.scrollTop = convo.scrollHeight;
+    }
+
+    function addBot(text, isHtml=false){
+      const wrap = document.createElement('div'); wrap.className = 'msg bot fadeIn';
+      const av = document.createElement('div'); av.className = 'avatar'; av.innerText = 'AI';
+      const b = document.createElement('div'); b.className = 'bubble';
+      if(isHtml) b.innerHTML = text; else b.innerText = text;
+      wrap.appendChild(av); wrap.appendChild(b); appendMeta(wrap);
+      convo.appendChild(wrap); convo.scrollTop = convo.scrollHeight;
+    }
+
+    function appendMeta(el){
+      const m = document.createElement('div'); m.className = 'meta-time'; m.innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      el.appendChild(m);
+    }
+
+    function showTyping(show){
+      typing.style.display = show ? 'block' : 'none';
+      convo.scrollTop = convo.scrollHeight;
+    }
+  </script>
+</body>
+</html>
